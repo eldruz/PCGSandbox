@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21b46d5481a12764fa79274ae172d969, type: 3}
+  m_Name: Branching04
+  m_EditorClassIdentifier: 
+  direction: {x: 0, y: 0, z: 1}
+  RU: {x: 0, y: 1, z: 0}
+  RL: {x: -1, y: -0, z: -0}
+  RH: {x: 0, y: 0, z: 1}
+  distance: 1
+  dL: 1
+  angle: 20
+  axiom: X
+  stochasticProductions: []
+  deterministicProductions:
+  - predecessor: X
+    successor: F[+X]F[-X]+X
+  - predecessor: F
+    successor: FF

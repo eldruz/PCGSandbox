@@ -6,15 +6,11 @@ namespace LSystems
 {
     public class LSystemDisplay : MonoBehaviour
     {
+        public LSystem lSystem;
 
-        public GameObject shape;
-        private LSystem lSystem;
-
-        // Use this for initialization
-        void Start()
-        {
-            lSystem = GetComponent<LSystem>();
-        }
+        private Mesh mesh;
+        private MeshFilter meshFilter;
+        private MeshRenderer meshRenderer;
 
         // Update is called once per frame
         void Update()
@@ -22,14 +18,31 @@ namespace LSystems
 
         }
 
+
+
+        public void GenerateMesh()
+        {
+            if (meshFilter == null || meshRenderer == null)
+            {
+                meshFilter = new MeshFilter();
+                meshRenderer = new MeshRenderer();
+            }
+            
+            
+        }
+
         public void Draw()
+        {
+            StartCoroutine(DrawSlowly());
+        }
+
+        public IEnumerator DrawSlowly()
         {
             List<Edge> edges = lSystem.Edges;
             for (int i = 0; i < edges.Count; i++)
             {
-                //var o = Instantiate(shape, edges[i].from, Quaternion.identity, transform);
-                //o.transform.localScale *= 0.05f;
                 Debug.DrawLine(edges[i].from, edges[i].to, Color.green, 2500f);
+                yield return new WaitForSeconds(.0001f);
             }
         }
     }

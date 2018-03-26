@@ -299,7 +299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9af6ca56547576458b2c0ce3dc9a7b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  config: {fileID: 11400000, guid: 4581cd9d0bfa46147ac813ef4383a48d, type: 2}
+  config: {fileID: 11400000, guid: a43bec1121127cd4a884714fe89bae33, type: 2}
   randomSeed: 0
   onGenerationOver:
     m_PersistentCalls:

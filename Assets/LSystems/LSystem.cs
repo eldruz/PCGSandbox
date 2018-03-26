@@ -37,9 +37,11 @@ namespace LSystems
         private GameObject turtleObj;
         private Turtle turtle;
 
-        private List<Edge> edges = new List<Edge>();
-        public List<Edge> Edges { get { return edges; } set { } }
+        //private List<Edge> edges = new List<Edge>();
+        //public List<Edge> Edges { get { return edges; } set { } }
 
+        private List<State> run = new List<State>();
+        public List<State> Run { get { return run; } set { } }
         private Stack<State> storedStates = new Stack<State>();
         private State currentState;
 
@@ -74,6 +76,10 @@ namespace LSystems
                 angle = angle,
                 dL = dL
             };
+
+            //edges.Clear();
+            run.Clear();
+            run.Add(currentState.Clone());
         }
 
         private void LoadConfig()
@@ -110,20 +116,19 @@ namespace LSystems
             generation++;
             axiom = Derivation(axiom);
 
-            edges.Clear();
-            turtle.transform.position = transform.position;
-            turtle.transform.rotation = transform.rotation;
+            Init();
 
             foreach (char c in axiom)
             {
                 switch (c)
                 {
                     case 'F':
-                        Vector3 from = turtle.transform.position;
-                        edges.Add(new Edge { from = from, to = turtle.transform.position });
+                        //Vector3 from = turtle.transform.position;
                         currentState.isDrawn = true;
                         // Moves forward and updates the state
                         Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
+                        run.Add(currentState.Clone());
+                        //edges.Add(new Edge { from = from, to = turtle.transform.position });
                         break;
                     case 'f':
                         currentState.isDrawn = false;

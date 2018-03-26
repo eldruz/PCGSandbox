@@ -42,6 +42,12 @@ namespace LSystems
 
         private List<State> run = new List<State>();
         public List<State> Run { get { return run; } set { } }
+
+        //private Tree<State> tree;
+        //public Tree<State> Tree { get { return tree; } set { } }
+        //private Tree<State> currentTree;
+
+        //private Stack<Tree<State>> storedTree = new Stack<Tree<State>>();
         private Stack<State> storedStates = new Stack<State>();
         private State currentState;
 
@@ -80,6 +86,8 @@ namespace LSystems
             //edges.Clear();
             run.Clear();
             run.Add(currentState.Clone());
+            //tree = new Tree(null, currentState.Clone());
+            //currentTree = tree;
         }
 
         private void LoadConfig()
@@ -127,6 +135,12 @@ namespace LSystems
                         currentState.isDrawn = true;
                         // Moves forward and updates the state
                         Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
+                        //// Create a new tree with the updated state
+                        //Tree branch = new Tree(currentTree, currentState.Clone());
+                        //// Add the tree as a child of the currentTree
+                        //currentTree.AddChild(branch);
+                        //// Set the currentTree to the newly created tree
+                        //currentTree = branch;
                         run.Add(currentState.Clone());
                         //edges.Add(new Edge { from = from, to = turtle.transform.position });
                         break;
@@ -157,10 +171,12 @@ namespace LSystems
                         break;
                     case '[':
                         storedStates.Push(currentState.Clone());
+                        //storedTree.Push(currentTree);
                         break;
                     case ']':
                         currentState = storedStates.Pop();
                         turtle.SetStateToTurtle(currentState);
+                        //currentTree = storedTree.Pop();
                         break;
                     default:
                         break;

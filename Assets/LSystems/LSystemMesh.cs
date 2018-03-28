@@ -26,26 +26,26 @@ namespace LSystems
 
         public void Refresh()
         {
-            List<Edge> edges = lSystem.Edges;
+            List<State> run = lSystem.Run;
 
             // VERTICES
-            Vector3[] vertices = new Vector3[edges.Count * 4];
+            Vector3[] vertices = new Vector3[run.Count * 4];
             Color[] colors = new Color[vertices.Length];
             Vector2[] uvs = new Vector2[vertices.Length];
 
-            for (int i = 0, v = 0; i < edges.Count; i++, v += 4)
+            for (int i = 0, v = 0; i < run.Count; i++, v += 4)
             {
-                Vector3 direction = edges[i].to - edges[i].from;
+                Vector3 direction = run[i].position - run[i].previousPosition;
                 Vector3 orthoDir = Vector3.Cross(direction, Vector3.up).normalized * dL;
 
-                vertices[v] = edges[i].from + orthoDir;
-                vertices[v + 1] = edges[i].from - orthoDir;
-                vertices[v + 2] = edges[i].to + orthoDir;
-                vertices[v + 3] = edges[i].to - orthoDir;
-                uvs[v] = edges[i].from + orthoDir;
-                uvs[v + 1] = edges[i].from - orthoDir;
-                uvs[v + 2] = edges[i].to + orthoDir;
-                uvs[v + 3] = edges[i].to - orthoDir;
+                vertices[v] = run[i].previousPosition + orthoDir;
+                vertices[v + 1] = run[i].previousPosition - orthoDir;
+                vertices[v + 2] = run[i].position + orthoDir;
+                vertices[v + 3] = run[i].position - orthoDir;
+                uvs[v] = run[i].previousPosition + orthoDir;
+                uvs[v + 1] = run[i].previousPosition - orthoDir;
+                uvs[v + 2] = run[i].position + orthoDir;
+                uvs[v + 3] = run[i].position - orthoDir;
             }
             mesh.vertices = vertices;
 

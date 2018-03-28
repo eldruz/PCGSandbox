@@ -37,9 +37,17 @@ namespace LSystems
         private GameObject turtleObj;
         private Turtle turtle;
 
-        private List<Edge> edges = new List<Edge>();
-        public List<Edge> Edges { get { return edges; } set { } }
+        //private List<Edge> edges = new List<Edge>();
+        //public List<Edge> Edges { get { return edges; } set { } }
 
+        private List<State> run = new List<State>();
+        public List<State> Run { get { return run; } set { } }
+
+        //private Tree<State> tree;
+        //public Tree<State> Tree { get { return tree; } set { } }
+        //private Tree<State> currentTree;
+
+        //private Stack<Tree<State>> storedTree = new Stack<Tree<State>>();
         private Stack<State> storedStates = new Stack<State>();
         private State currentState;
 
@@ -56,15 +64,30 @@ namespace LSystems
             turtle = turtleObj.gameObject.AddComponent<Turtle>();
 
             turtle.transform.parent = transform;
+
+            Init();
+        }
+
+        private void Init()
+        {
             turtle.transform.position = transform.position;
             turtle.transform.rotation = transform.rotation;
 
             currentState = new State
             {
+                previousPosition = turtle.transform.position,
+                position = turtle.transform.position,
+                rotation = turtle.transform.rotation,
                 distance = distance,
                 angle = angle,
                 dL = dL
             };
+
+            //edges.Clear();
+            run.Clear();
+            run.Add(currentState.Clone());
+            //tree = new Tree(null, currentState.Clone());
+            //currentTree = tree;
         }
 
         private void LoadConfig()
@@ -101,54 +124,59 @@ namespace LSystems
             generation++;
             axiom = Derivation(axiom);
 
-            edges.Clear();
-            turtle.transform.position = transform.position;
-            turtle.transform.rotation = transform.rotation;
+            Init();
 
             foreach (char c in axiom)
             {
                 switch (c)
                 {
                     case 'F':
-                        Vector3 from = turtle.transform.position;
-                        turtle.transform.Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
-                        edges.Add(new Edge { from = from, to = turtle.transform.position });
+                        //Vector3 from = turtle.transform.position;
+                        currentState.isDrawn = true;
+                        // Moves forward and updates the state
+                        Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
+                        //// Create a new tree with the updated state
+                        //Tree branch = new Tree(currentTree, currentState.Clone());
+                        //// Add the tree as a child of the currentTree
+                        //currentTree.AddChild(branch);
+                        //// Set the currentTree to the newly created tree
+                        //currentTree = branch;
+                        run.Add(currentState.Clone());
+                        //edges.Add(new Edge { from = from, to = turtle.transform.position });
                         break;
                     case 'f':
-                        turtle.transform.Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
+                        currentState.isDrawn = false;
+                        Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
                         break;
                     case '+':
-                        turtle.transform.Rotate(RU * currentState.angle);
+                        Rotate(RU, currentState.angle);
                         break;
                     case '-':
-                        turtle.transform.Rotate(RU * -currentState.angle);
+                        Rotate(RU, -currentState.angle);
                         break;
                     case '&':
-                        turtle.transform.Rotate(RL * currentState.angle);
+                        Rotate(RL, currentState.angle);
                         break;
                     case '^':
-                        turtle.transform.Rotate(RL * -currentState.angle);
+                        Rotate(RL, -currentState.angle);
                         break;
                     case '\\':
-                        turtle.transform.Rotate(RH * currentState.angle);
+                        Rotate(RH, currentState.angle);
                         break;
                     case '/':
-                        turtle.transform.Rotate(RH * -currentState.angle);
+                        Rotate(RH, -currentState.angle);
                         break;
                     case '|':
-                        turtle.transform.Rotate(RU * 180);
+                        Rotate(RU, 180);
                         break;
                     case '[':
-                        storedStates.Push(new State
-                        {
-                            position = turtle.transform.position,
-                            rotation = turtle.transform.rotation,
-                            distance = currentState.distance,
-                            angle = currentState.angle
-                        });
+                        storedStates.Push(currentState.Clone());
+                        //storedTree.Push(currentTree);
                         break;
                     case ']':
-                        turtle.SetStateToTurtle(storedStates.Pop());
+                        currentState = storedStates.Pop();
+                        turtle.SetStateToTurtle(currentState);
+                        //currentTree = storedTree.Pop();
                         break;
                     default:
                         break;
@@ -156,6 +184,19 @@ namespace LSystems
             }
 
             onGenerationOver.Invoke();
+        }
+
+        private void Translate(Vector3 to)
+        {
+            currentState.previousPosition = turtle.transform.position;
+            turtle.transform.Translate(to);
+            currentState.position = turtle.transform.position;
+        }
+
+        private void Rotate(Vector3 axis, float angle)
+        {
+            turtle.transform.Rotate(axis * angle);
+            currentState.rotation = turtle.transform.rotation;
         }
 
         private string Derivation(string s)

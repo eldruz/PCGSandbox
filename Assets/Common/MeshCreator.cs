@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class MeshCreator : MonoBehaviour {
 
+    public bool showNormals = false;
+
     public Vector3 start;
     public Vector3 end;
 
     public float startRadius;
     public float endRadius;
+
+    public bool top;
+    public bool bottom;
 
     [Range(3,32)]
     public int lengthSegments = 8;
@@ -25,7 +30,7 @@ public class MeshCreator : MonoBehaviour {
         }
     }
 
-    public static Mesh CreateCylinder(Vector3 start, Vector3 end, float startRadius, float endRadius, int lengthSegments = 8, int heightSegments = 1)
+    public static Mesh CreateCylinder(Vector3 start, Vector3 end, float startRadius, float endRadius, int lengthSegments = 8, int heightSegments = 1, bool bottom = false, bool top = false)
     {
         Mesh mesh = new Mesh()
         {
@@ -65,11 +70,18 @@ public class MeshCreator : MonoBehaviour {
 
         mesh.vertices = points.ToArray();
 
-        int[] triangles = new int[6 * lengthSegments * (heightSegments + 1)];
+        int numTriangles = 6 * lengthSegments * heightSegments;
+        if (bottom)
+        {
+            numTriangles += 3 * lengthSegments;
+        }
+        if (top)
+        {
+            numTriangles += 3 * lengthSegments;
+        }
+        int[] triangles = new int[numTriangles];
 
         int trianglesIdx = 0;
-        int startCenter = points.Count - 2;
-        int endCenter = points.Count - 1;
 
         for (int h = 0; h < heightSegments; h++)
         {
@@ -93,7 +105,32 @@ public class MeshCreator : MonoBehaviour {
             triangles[trianglesIdx + 5] = (h * lengthSegments) + lengthSegments;
 
             trianglesIdx += 6;
+        }
 
+        if (bottom)
+        {
+            int startCenter = points.Count - 2;
+            for (int i = 0; i < lengthSegments; i++)
+            {
+                triangles[trianglesIdx] = startCenter;
+                triangles[trianglesIdx + 1] = i;
+                triangles[trianglesIdx + 2] = (i + 1) % lengthSegments;
+
+                trianglesIdx += 3;
+            }
+        }
+
+        if (top)
+        {
+            int endCenter = points.Count - 1;
+            for (int i = points.Count - lengthSegments - 2; i < points.Count - 2; i++)
+            {
+                triangles[trianglesIdx] = endCenter;
+                triangles[trianglesIdx + 1] = i == (points.Count - 3) ? points.Count - lengthSegments - 2 : i + 1;
+                triangles[trianglesIdx + 2] = i;
+
+                trianglesIdx += 3;
+            }
         }
 
         mesh.triangles = triangles;
@@ -104,7 +141,7 @@ public class MeshCreator : MonoBehaviour {
 
     public void CreateCylinder()
     {
-        mesh = MeshCreator.CreateCylinder(start, end, startRadius, endRadius, lengthSegments, heightSegments);
+        mesh = MeshCreator.CreateCylinder(start, end, startRadius, endRadius, lengthSegments, heightSegments, bottom, top);
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
@@ -120,7 +157,7 @@ public class MeshCreator : MonoBehaviour {
     private void OnDrawGizmosSelected()
     {
         float scale = 1f;
-        if (mesh != null)
+        if (mesh != null && showNormals)
         {
             Gizmos.color = Color.yellow;
             for (int v = 0; v < mesh.vertices.Length; v++)

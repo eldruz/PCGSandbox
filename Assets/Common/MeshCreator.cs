@@ -25,7 +25,7 @@ public class MeshCreator : MonoBehaviour {
         }
     }
 
-    public static Mesh CreateCylinder(Vector3 start, Vector3 end, float startRadius, float endRadius, int lengthSegments = 8)
+    public static Mesh CreateCylinder(Vector3 start, Vector3 end, float startRadius, float endRadius, int lengthSegments = 8, int heightSegments = 1)
     {
         Mesh mesh = new Mesh()
         {
@@ -34,70 +34,66 @@ public class MeshCreator : MonoBehaviour {
 
         List<Vector3> points = new List<Vector3>();
 
-        float ratio = 2f * Mathf.PI / lengthSegments;
+        float angleRatio = 2f * Mathf.PI / lengthSegments;
         float angle = 0;
 
-        /* Number of vertices:
-         *  2 * resolution + 2
-         */
-        // Even index : start
-        // Odd index  : end
-        for (int i = 0; i < lengthSegments; i++)
-        {
-            // Starting circle
-            Vector3 startPoint = new Vector3(
-                startRadius * Mathf.Cos(angle + ratio * (float)i),
-                0f,
-                startRadius * Mathf.Sin(angle + ratio * (float)i))
-                + start;
-            points.Add(startPoint);
+        float radiusRatio = (endRadius - startRadius) / (float)heightSegments;
+        float radius = startRadius;
 
-            // Ending circle
-            Vector3 endPoint = new Vector3(
-                endRadius * Mathf.Cos(angle + ratio * (float)i),
+        Vector3 offsetPosition = (end - start) * (1f/(heightSegments));
+        Vector3 ringPosition = start;
+
+        for (int h = 0; h < heightSegments + 1; h++)
+        {
+            angle = 0;
+            for (int l = 0; l < lengthSegments; l++)
+            {
+                Vector3 point = new Vector3(
+                radius * Mathf.Cos(angle + angleRatio * (float)l),
                 0f,
-                endRadius * Mathf.Sin(angle + ratio * (float)i))
-                + end;
-            points.Add(endPoint);
+                radius * Mathf.Sin(angle + angleRatio * (float)l))
+                + ringPosition;
+
+                points.Add(point);
+            }
+            ringPosition += offsetPosition;
+            radius += radiusRatio;
         }
 
-        // Adding the center of the two end circles at the end
         points.Add(start);
         points.Add(end);
 
         mesh.vertices = points.ToArray();
 
-        /* Number of points for triangles :
-         *   6 * $resolution for sides
-         * + (3 * $resolution) * 2 for ends
-         * = 12 * $resolution
-         */
-        int[] triangles = new int[12 * lengthSegments];
+        int[] triangles = new int[6 * lengthSegments * (heightSegments + 1)];
 
         int trianglesIdx = 0;
         int startCenter = points.Count - 2;
         int endCenter = points.Count - 1;
 
-        for (int i = 0; i < lengthSegments; i++)
+        for (int h = 0; h < heightSegments; h++)
         {
-            // Ends
-            triangles[trianglesIdx] = startCenter;
-            triangles[trianglesIdx + 1] = 2 * i;
-            triangles[trianglesIdx + 2] = (2 * i + 2) % (lengthSegments * 2);
+            for (int l = 0; l < lengthSegments - 1; l++)
+            {
+                triangles[trianglesIdx] = (l + h*lengthSegments);
+                triangles[trianglesIdx + 1] = (l + h*lengthSegments) + lengthSegments;
+                triangles[trianglesIdx + 2] = (l + h*lengthSegments) + 1;
+                triangles[trianglesIdx + 3] = (l + h*lengthSegments) + 1;
+                triangles[trianglesIdx + 4] = (l + h*lengthSegments) + lengthSegments;
+                triangles[trianglesIdx + 5] = (l + h*lengthSegments) + lengthSegments + 1;
 
-            triangles[trianglesIdx + 3] = endCenter;
-            triangles[trianglesIdx + 4] = (2 * i + 3) % (lengthSegments * 2);
-            triangles[trianglesIdx + 5] = 2 * i + 1;
+                trianglesIdx += 6;
+            }
 
-            // Sides
-            triangles[trianglesIdx + 6] = 2 * i;
-            triangles[trianglesIdx + 7] = 2 * i + 1;
-            triangles[trianglesIdx + 8] = (2 * i + 2) % (lengthSegments * 2);
-            triangles[trianglesIdx + 9] = (2 * i + 2) % (lengthSegments * 2);
-            triangles[trianglesIdx + 10] = 2 * i + 1;
-            triangles[trianglesIdx + 11] = (2 * i + 3) % (lengthSegments * 2);
+            triangles[trianglesIdx] = (lengthSegments - 1 + h * lengthSegments);
+            triangles[trianglesIdx + 1] = (lengthSegments - 1 + h * lengthSegments) + lengthSegments;
+            triangles[trianglesIdx + 2] = h * lengthSegments;
+            triangles[trianglesIdx + 3] = h * lengthSegments;
+            triangles[trianglesIdx + 4] = (lengthSegments - 1 + h * lengthSegments) + lengthSegments;
+            triangles[trianglesIdx + 5] = (h * lengthSegments) + lengthSegments;
 
-            trianglesIdx += 12;
+            trianglesIdx += 6;
+
         }
 
         mesh.triangles = triangles;
@@ -108,8 +104,17 @@ public class MeshCreator : MonoBehaviour {
 
     public void CreateCylinder()
     {
-        mesh = MeshCreator.CreateCylinder(start, end, startRadius, endRadius, lengthSegments);
+        mesh = MeshCreator.CreateCylinder(start, end, startRadius, endRadius, lengthSegments, heightSegments);
         GetComponent<MeshFilter>().mesh = mesh;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Vector3[] points = GetComponent<MeshFilter>().sharedMesh.vertices;
+        for (int i = 0; i < points.Length; i++)
+        {
+            Gizmos.DrawCube(points[i], new Vector3(0.1f, 0.1f, 0.1f));
+        }
     }
 
     private void OnDrawGizmosSelected()

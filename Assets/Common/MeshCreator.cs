@@ -149,7 +149,7 @@ public class MeshCreator : MonoBehaviour {
     /// <param name="r2">Radius of top circle</param>
     /// <param name="sub">Number of vertical subdivisions</param>
     /// <returns></returns>
-    public static Mesh CreateCylinderDirection(Vector3 p1, Vector3 p2, float r1, float r2, int sub = 3)
+    public static Mesh CreateCylinderDirection(Vector3 p1, Vector3 p2, float r1, float r2, int sub = 3, bool bottom = false, bool top = false)
     {
         Mesh mesh = new Mesh()
         {
@@ -159,6 +159,7 @@ public class MeshCreator : MonoBehaviour {
         float theta1;
         float theta2;
 
+        // Calculating vectors to form a coordinate system based on the cylinder axis
         Vector3 perp = p2 - p1;
         if (perp.x == 0 && perp.z == 0)
         {
@@ -172,9 +173,16 @@ public class MeshCreator : MonoBehaviour {
         Vector3 B = Vector3.Cross(A, p2 - p1).normalized;
 
         List<Vector3> points = new List<Vector3>();
-        int[] triangles = new int[6 * sub];
+        int numTriangles = 6 * sub + (top ? 3 * sub : 0) + (bottom ? 3 * sub : 0);
+        int[] triangles = new int[numTriangles];
 
-        for (int i = 0, idx = 0; i < sub; i++, idx += 6)
+        points.Add(p1);
+        points.Add(p2);
+
+        int bottomCenterIdx = 0;
+        int topCenterIdx = 1;
+
+        for (int i = 0, idx = 0; i < sub; i++)
         {
             theta1 = i * 2f * Mathf.PI / sub;
             theta2 = (i + 1) * 2f * Mathf.PI / sub;
@@ -187,13 +195,6 @@ public class MeshCreator : MonoBehaviour {
                 p2.x + r2 * Mathf.Cos(theta1) * A.x + r2 * Mathf.Sin(theta1) * B.x,
                 p2.y + r2 * Mathf.Cos(theta1) * A.y + r2 * Mathf.Sin(theta1) * B.y,
                 p2.z + r2 * Mathf.Cos(theta1) * A.z + r2 * Mathf.Sin(theta1) * B.z));
-            if (r2 != 0)
-            {
-                points.Add(new Vector3(
-                    p2.x + r2 * Mathf.Cos(theta2) * A.x + r2 * Mathf.Sin(theta2) * B.x,
-                    p2.y + r2 * Mathf.Cos(theta2) * A.y + r2 * Mathf.Sin(theta2) * B.y,
-                    p2.z + r2 * Mathf.Cos(theta2) * A.z + r2 * Mathf.Sin(theta2) * B.z));
-            }
             if (r1 != 0)
             {
                 points.Add(new Vector3(
@@ -201,19 +202,37 @@ public class MeshCreator : MonoBehaviour {
                     p1.y + r1 * Mathf.Cos(theta2) * A.y + r1 * Mathf.Sin(theta2) * B.y,
                     p1.z + r1 * Mathf.Cos(theta2) * A.z + r1 * Mathf.Sin(theta2) * B.z));
             }
+            if (r2 != 0)
+            {
+                points.Add(new Vector3(
+                    p2.x + r2 * Mathf.Cos(theta2) * A.x + r2 * Mathf.Sin(theta2) * B.x,
+                    p2.y + r2 * Mathf.Cos(theta2) * A.y + r2 * Mathf.Sin(theta2) * B.y,
+                    p2.z + r2 * Mathf.Cos(theta2) * A.z + r2 * Mathf.Sin(theta2) * B.z));
+            }
 
             int i0 = points.Count - 4;
 
-            triangles[idx] = i0;
-            triangles[idx + 1] = i0 + 1;
-            triangles[idx + 2] = i0 + 2;
-            triangles[idx + 3] = i0;
-            triangles[idx + 4] = i0 + 2;
-            triangles[idx + 5] = i0 + 3;
-        }
+            triangles[idx++] = i0;
+            triangles[idx++] = i0 + 1;
+            triangles[idx++] = i0 + 3;
+            triangles[idx++] = i0;
+            triangles[idx++] = i0 + 3;
+            triangles[idx++] = i0 + 2;
 
-        points.Add(p1);
-        points.Add(p2);
+            if (top)
+            {
+                triangles[idx++] = bottomCenterIdx;
+                triangles[idx++] = i0;
+                triangles[idx++] = i0 + 2;
+            }
+
+            if (bottom)
+            {
+                triangles[idx++] = topCenterIdx;
+                triangles[idx++] = i0 + 3;
+                triangles[idx++] = i0 + 1;
+            }
+        }
 
         mesh.vertices = points.ToArray();
         mesh.triangles = triangles;
@@ -225,16 +244,27 @@ public class MeshCreator : MonoBehaviour {
     public void CreateCylinder()
     {
         //mesh = MeshCreator.CreateCylinder(start, end, startRadius, endRadius, lengthSegments, heightSegments, bottom, top);
-        mesh = MeshCreator.CreateCylinderDirection(start, end, startRadius, endRadius, lengthSegments);
+        mesh = MeshCreator.CreateCylinderDirection(start, end, startRadius, endRadius, lengthSegments, bottom, top);
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
     private void OnDrawGizmos()
     {
-        Vector3[] points = GetComponent<MeshFilter>().sharedMesh.vertices;
-        for (int i = 0; i < points.Length; i++)
+        if (mesh != null)
         {
-            Gizmos.DrawCube(points[i], new Vector3(0.1f, 0.1f, 0.1f));
+            Vector3[] points = GetComponent<MeshFilter>().sharedMesh.vertices;
+            for (int i = 0; i < points.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    Gizmos.color = Color.blue;
+                }
+                else
+                {
+                    Gizmos.color = Color.green;
+                }
+                Gizmos.DrawCube(points[i], new Vector3(0.1f, 0.1f, 0.1f));
+            }
         }
     }
 

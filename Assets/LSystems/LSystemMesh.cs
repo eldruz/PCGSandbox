@@ -26,6 +26,11 @@ namespace LSystems
 
         public void Refresh()
         {
+            CylinderMesh();
+        }
+
+        public void QuadMesh()
+        {
             List<State> run = lSystem.Run;
 
             // VERTICES
@@ -61,6 +66,31 @@ namespace LSystems
                 triangles[t + 5] = i + 3;
             }
             mesh.triangles = triangles;
+        }
+
+        public void CylinderMesh()
+        {
+            List<State> run = lSystem.Run;
+
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+
+            for (int i = 0; i < run.Count; i++)
+            {
+                PapaPoncho.MeshCreator.Cylinder(
+                    ref vertices,
+                    ref triangles,
+                    run[i].previousPosition,
+                    run[i].position,
+                    .05f,
+                    .05f,
+                    8,
+                    i == 0 ? true : false);
+            }
+
+            mesh.vertices = vertices.ToArray();
+            mesh.triangles = triangles.ToArray();
+            mesh.RecalculateNormals();
         }
 
         private void OnDrawGizmos()

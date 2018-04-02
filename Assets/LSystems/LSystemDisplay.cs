@@ -63,15 +63,15 @@ namespace LSystems
 
         //public void DrawFromTree()
         //{
-        //    Tree tree = lSystem.Tree;
+        //    Arbol tree = lSystem.Arbol;
         //    DrawTree(tree);
         //}
 
-        //private void DrawTree(Tree root)
+        //private void DrawTree(Arbol root)
         //{
         //    if (!root.IsLeaf())
         //    {
-        //        foreach (Tree t in root.Children)
+        //        foreach (Arbol t in root.Children)
         //        {
         //            Debug.DrawLine(root.State.position, t.State.position, Color.blue, 2500f);
         //            DrawTree(t);

@@ -43,11 +43,11 @@ namespace LSystems
         private List<State> run = new List<State>();
         public List<State> Run { get { return run; } set { } }
 
-        //private Tree<State> tree;
-        //public Tree<State> Tree { get { return tree; } set { } }
-        //private Tree<State> currentTree;
+        //private Arbol<State> tree;
+        //public Arbol<State> Arbol { get { return tree; } set { } }
+        //private Arbol<State> currentTree;
 
-        //private Stack<Tree<State>> storedTree = new Stack<Tree<State>>();
+        //private Stack<Arbol<State>> storedTree = new Stack<Arbol<State>>();
         private Stack<State> storedStates = new Stack<State>();
         private State currentState;
 
@@ -86,7 +86,7 @@ namespace LSystems
             //edges.Clear();
             run.Clear();
             run.Add(currentState.Clone());
-            //tree = new Tree(null, currentState.Clone());
+            //tree = new Arbol(null, currentState.Clone());
             //currentTree = tree;
         }
 
@@ -136,7 +136,7 @@ namespace LSystems
                         // Moves forward and updates the state
                         Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
                         //// Create a new tree with the updated state
-                        //Tree branch = new Tree(currentTree, currentState.Clone());
+                        //Arbol branch = new Arbol(currentTree, currentState.Clone());
                         //// Add the tree as a child of the currentTree
                         //currentTree.AddChild(branch);
                         //// Set the currentTree to the newly created tree

@@ -6,20 +6,29 @@ namespace LSystems
 {
     public class LSystemDisplay : MonoBehaviour
     {
+        public LSystem lSystem;
 
-        public GameObject shape;
-        private LSystem lSystem;
-
-        // Use this for initialization
-        void Start()
-        {
-            lSystem = GetComponent<LSystem>();
-        }
+        private Mesh mesh;
+        private MeshFilter meshFilter;
+        private MeshRenderer meshRenderer;
 
         // Update is called once per frame
         void Update()
         {
 
+        }
+
+
+
+        public void GenerateMesh()
+        {
+            if (meshFilter == null || meshRenderer == null)
+            {
+                meshFilter = new MeshFilter();
+                meshRenderer = new MeshRenderer();
+            }
+            
+            
         }
 
         public void Draw()
@@ -35,6 +44,19 @@ namespace LSystems
                 if (run[i].isDrawn && run[i].previousPosition != run[i].position)
                 {
                     Debug.DrawLine(run[i].previousPosition, run[i].position, Color.blue, 250f);
+                }
+            }
+        }
+        
+        public IEnumerator DrawSlowly()
+        {
+            List<State> run = lSystem.Run;
+            for (int i = 0; i < run.Count; i++)
+            {
+                if (run[i].isDrawn && run[i].previousPosition != run[i].position)
+                {
+                    Debug.DrawLine(run[i].previousPosition, run[i].position, Color.blue, 250f);
+                    yield return new WaitForSeconds(0.01f);
                 }
             }
         }

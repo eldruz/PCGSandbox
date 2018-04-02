@@ -209,6 +209,7 @@ namespace LSystems
                 if (appliedRules.Count > 0)
                 {
                     // apply stochastic rules
+                    // TODO: apply provided probabilities
                     sb.Append(appliedRules[Random.Range(0, appliedRules.Count)].successor);
                 }
                 else if (productionsDic.ContainsKey(c.ToString()))

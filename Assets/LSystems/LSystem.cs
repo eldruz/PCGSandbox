@@ -78,9 +78,7 @@ namespace LSystems
                 previousPosition = turtle.transform.position,
                 position = turtle.transform.position,
                 rotation = turtle.transform.rotation,
-                distance = distance,
-                angle = angle,
-                dL = dL
+                isDrawn = false
             };
 
             //edges.Clear();
@@ -134,7 +132,7 @@ namespace LSystems
                         //Vector3 from = turtle.transform.position;
                         currentState.isDrawn = true;
                         // Moves forward and updates the state
-                        Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
+                        Translate(direction * distance * ((generation > 1) ? dL : 1f));
                         //// Create a new tree with the updated state
                         //Arbol branch = new Arbol(currentTree, currentState.Clone());
                         //// Add the tree as a child of the currentTree
@@ -146,25 +144,25 @@ namespace LSystems
                         break;
                     case 'f':
                         currentState.isDrawn = false;
-                        Translate(direction * currentState.distance * ((generation > 1) ? currentState.dL : 1f));
+                        Translate(direction * distance * ((generation > 1) ? dL : 1f));
                         break;
                     case '+':
-                        Rotate(RU, currentState.angle);
+                        Rotate(RU, angle);
                         break;
                     case '-':
-                        Rotate(RU, -currentState.angle);
+                        Rotate(RU, -angle);
                         break;
                     case '&':
-                        Rotate(RL, currentState.angle);
+                        Rotate(RL, angle);
                         break;
                     case '^':
-                        Rotate(RL, -currentState.angle);
+                        Rotate(RL, -angle);
                         break;
                     case '\\':
-                        Rotate(RH, currentState.angle);
+                        Rotate(RH, angle);
                         break;
                     case '/':
-                        Rotate(RH, -currentState.angle);
+                        Rotate(RH, -angle);
                         break;
                     case '|':
                         Rotate(RU, 180);

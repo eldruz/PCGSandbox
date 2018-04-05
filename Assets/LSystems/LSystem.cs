@@ -20,30 +20,30 @@ namespace LSystems
 
         public int randomSeed = 0;
 
-        private string axiom;
+        private string _axiom;
 
-        private Vector3 direction = Vector3.forward;
-        private Vector3 RU = Vector3.up;
-        private Vector3 RL = -Vector3.right;
-        private Vector3 RH = Vector3.forward;
-        private float distance;
-        private float dL;
-        private float angle;
+        private Vector3 _direction = Vector3.forward;
+        private Vector3 _ru = Vector3.up;
+        private Vector3 _rl = -Vector3.right;
+        private Vector3 _rh = Vector3.forward;
+        private float _distance;
+        private float _dL;
+        private float _angle;
 
-        private List<DeterministicProduction> deterministicProductions = new List<DeterministicProduction>();
-        private Dictionary<string, string> productionsDic = new Dictionary<string, string>();
-        private List<StochasticProduction> stochasticProductions = new List<StochasticProduction>();
+        private List<DeterministicProduction> _deterministicProductions = new List<DeterministicProduction>();
+        private Dictionary<string, string> _deterministicProductionsDic = new Dictionary<string, string>();
+        private List<StochasticProduction> _stochasticProductions = new List<StochasticProduction>();
 
-        private GameObject turtleObj;
-        private Turtle turtle;
+        private GameObject _turtleObj;
+        private Turtle _turtle;
 
-        private List<State> run = new List<State>();
+        private readonly List<State> run = new List<State>();
         public List<State> Run { get { return run; } set { } }
 
-        private Stack<State> storedStates = new Stack<State>();
-        private State currentState;
+        private readonly Stack<State> storedStates = new Stack<State>();
+        private State _currentState;
 
-        private int generation = 0;
+        private int _generation = 0;
 
         public UnityEvent onGenerationOver;
 
@@ -52,50 +52,50 @@ namespace LSystems
             LoadConfig();
             Random.InitState(randomSeed);
 
-            turtleObj = new GameObject("Turtle");
-            turtle = turtleObj.gameObject.AddComponent<Turtle>();
+            _turtleObj = new GameObject("Turtle");
+            _turtle = _turtleObj.gameObject.AddComponent<Turtle>();
 
-            turtle.transform.parent = transform;
+            _turtle.transform.parent = transform;
 
             Init();
         }
 
         private void Init()
         {
-            turtle.transform.position = transform.position;
-            turtle.transform.rotation = transform.rotation;
+            _turtle.transform.position = transform.position;
+            _turtle.transform.rotation = transform.rotation;
 
-            currentState = new State
+            _currentState = new State
             {
-                previousPosition = turtle.transform.position,
-                position = turtle.transform.position,
-                rotation = turtle.transform.rotation,
+                previousPosition = _turtle.transform.position,
+                position = _turtle.transform.position,
+                rotation = _turtle.transform.rotation,
                 isDrawn = false
             };
 
             run.Clear();
-            run.Add(currentState.Clone());
+            run.Add(_currentState.Clone());
         }
 
         private void LoadConfig()
         {
-            axiom = config.axiom;
+            _axiom = config.axiom;
 
-            direction = config.direction;
-            RU = config.RU;
-            RL = config.RL;
-            RH = config.RH;
-            distance = config.distance;
-            dL = config.dL;
-            angle = config.angle;
+            _direction = config.direction;
+            _ru = config.RU;
+            _rl = config.RL;
+            _rh = config.RH;
+            _distance = config.distance;
+            _dL = config.dL;
+            _angle = config.angle;
 
-            deterministicProductions = config.deterministicProductions;
-            foreach (DeterministicProduction rule in deterministicProductions)
+            _deterministicProductions = config.deterministicProductions;
+            foreach (DeterministicProduction rule in _deterministicProductions)
             {
-                productionsDic.Add(rule.predecessor, rule.successor);
+                _deterministicProductionsDic.Add(rule.predecessor, rule.successor);
             }
 
-            stochasticProductions = config.stochasticProductions;
+            _stochasticProductions = config.stochasticProductions;
         }
 
         private void Update()
@@ -108,51 +108,51 @@ namespace LSystems
 
         private void Generate()
         {
-            generation++;
-            axiom = Derivation(axiom);
+            _generation++;
+            _axiom = Derivation(_axiom);
 
             Init();
 
-            foreach (char c in axiom)
+            foreach (char c in _axiom)
             {
                 switch (c)
                 {
                     case 'F':
-                        currentState.isDrawn = true;
-                        Translate(direction * distance * ((generation > 1) ? dL : 1f));
-                        run.Add(currentState.Clone());
+                        _currentState.isDrawn = true;
+                        Translate(_direction * _distance * ((_generation > 1) ? _dL : 1f));
+                        run.Add(_currentState.Clone());
                         break;
                     case 'f':
-                        currentState.isDrawn = false;
-                        Translate(direction * distance * ((generation > 1) ? dL : 1f));
+                        _currentState.isDrawn = false;
+                        Translate(_direction * _distance * ((_generation > 1) ? _dL : 1f));
                         break;
                     case '+':
-                        Rotate(RU, angle);
+                        Rotate(_ru, _angle);
                         break;
                     case '-':
-                        Rotate(RU, -angle);
+                        Rotate(_ru, -_angle);
                         break;
                     case '&':
-                        Rotate(RL, angle);
+                        Rotate(_rl, _angle);
                         break;
                     case '^':
-                        Rotate(RL, -angle);
+                        Rotate(_rl, -_angle);
                         break;
                     case '\\':
-                        Rotate(RH, angle);
+                        Rotate(_rh, _angle);
                         break;
                     case '/':
-                        Rotate(RH, -angle);
+                        Rotate(_rh, -_angle);
                         break;
                     case '|':
-                        Rotate(RU, 180);
+                        Rotate(_ru, 180);
                         break;
                     case '[':
-                        storedStates.Push(currentState.Clone());
+                        storedStates.Push(_currentState.Clone());
                         break;
                     case ']':
-                        currentState = storedStates.Pop();
-                        turtle.SetStateToTurtle(currentState);
+                        _currentState = storedStates.Pop();
+                        _turtle.SetStateToTurtle(_currentState);
                         break;
                     default:
                         break;
@@ -164,15 +164,15 @@ namespace LSystems
 
         private void Translate(Vector3 to)
         {
-            currentState.previousPosition = turtle.transform.position;
-            turtle.transform.Translate(to);
-            currentState.position = turtle.transform.position;
+            _currentState.previousPosition = _turtle.transform.position;
+            _turtle.transform.Translate(to);
+            _currentState.position = _turtle.transform.position;
         }
 
         private void Rotate(Vector3 axis, float angle)
         {
-            turtle.transform.Rotate(axis * angle);
-            currentState.rotation = turtle.transform.rotation;
+            _turtle.transform.Rotate(axis * angle);
+            _currentState.rotation = _turtle.transform.rotation;
         }
 
         private string Derivation(string s)
@@ -181,17 +181,22 @@ namespace LSystems
 
             foreach (char c in s)
             {
-                List<StochasticProduction> appliedRules = stochasticProductions.FindAll(el => el.predecessor == c.ToString());
+                List<StochasticProduction> appliedRules = _stochasticProductions.FindAll(el => el.predecessor == c.ToString());
                 if (appliedRules.Count > 0)
                 {
-                    // apply stochastic rules
-                    // TODO: apply provided probabilities
-                    sb.Append(appliedRules[Random.Range(0, appliedRules.Count)].successor);
+                    float randomSelect = Random.Range(0f, 1f);
+                    int idx;
+                    float cumulativeProbability = 0f;
+                    for (idx = 0; idx < appliedRules.Count; idx++)
+                    {
+                        cumulativeProbability += appliedRules[idx].probability;
+                        if (randomSelect < cumulativeProbability) break;
+                    } 
+                    sb.Append(appliedRules[idx].successor);
                 }
-                else if (productionsDic.ContainsKey(c.ToString()))
+                else if (_deterministicProductionsDic.ContainsKey(c.ToString()))
                 {
-                    // apply deterministic rules
-                    sb.Append(productionsDic[c.ToString()]);
+                    sb.Append(_deterministicProductionsDic[c.ToString()]);
                 }
                 else
                 {

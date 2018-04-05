@@ -10,18 +10,16 @@ namespace LSystems
         public LSystem lSystem;
         public float dL = 0.1f;
 
-        private Mesh mesh;
+        private Mesh _mesh;
 
         private void OnEnable()
         {
-            if (mesh == null)
+            if (_mesh != null) return;
+            _mesh = new Mesh()
             {
-                mesh = new Mesh()
-                {
-                    name = "LSystem Mesh",
-                };
-                GetComponent<MeshFilter>().mesh = mesh;
-            }
+                name = "LSystem Mesh",
+            };
+            GetComponent<MeshFilter>().mesh = _mesh;
         }
 
         public void Refresh()
@@ -35,7 +33,6 @@ namespace LSystems
 
             // VERTICES
             Vector3[] vertices = new Vector3[run.Count * 4];
-            Color[] colors = new Color[vertices.Length];
             Vector2[] uvs = new Vector2[vertices.Length];
 
             for (int i = 0, v = 0; i < run.Count; i++, v += 4)
@@ -52,7 +49,7 @@ namespace LSystems
                 uvs[v + 2] = run[i].position + orthoDir;
                 uvs[v + 3] = run[i].position - orthoDir;
             }
-            mesh.vertices = vertices;
+            _mesh.vertices = vertices;
 
             // TRIANGLES
             int[] triangles = new int[vertices.Length * 6];
@@ -65,7 +62,7 @@ namespace LSystems
                 triangles[t + 4] = i + 2;
                 triangles[t + 5] = i + 3;
             }
-            mesh.triangles = triangles;
+            _mesh.triangles = triangles;
         }
 
         public void CylinderMesh()
@@ -77,30 +74,33 @@ namespace LSystems
 
             for (int i = 0; i < run.Count; i++)
             {
-                PapaPoncho.MeshCreator.Cylinder(
-                    ref vertices,
-                    ref triangles,
-                    run[i].previousPosition,
-                    run[i].position,
-                    .05f,
-                    .05f,
-                    8,
-                    i == 0 ? true : false);
+                if (run[i].isDrawn)
+                {
+                    PapaPoncho.MeshCreator.Cylinder(
+                        ref vertices,
+                        ref triangles,
+                        run[i].previousPosition,
+                        run[i].position,
+                        .05f,
+                        .05f,
+                        8,
+                        i == 0 ? true : false);
+                }
             }
 
-            mesh.vertices = vertices.ToArray();
-            mesh.triangles = triangles.ToArray();
-            mesh.RecalculateNormals();
+            _mesh.vertices = vertices.ToArray();
+            _mesh.triangles = triangles.ToArray();
+            _mesh.RecalculateNormals();
         }
 
         private void OnDrawGizmos()
         {
-            if (mesh != null)
+            if (_mesh != null)
             {
                 Gizmos.color = Color.blue;
-                for (int i = 0; i < mesh.vertices.Length; i++)
+                for (int i = 0; i < _mesh.vertices.Length; i++)
                 {
-                    Gizmos.DrawWireSphere(mesh.vertices[i], 0.1f);
+                    Gizmos.DrawWireSphere(_mesh.vertices[i], 0.1f);
                 }
             }
         }

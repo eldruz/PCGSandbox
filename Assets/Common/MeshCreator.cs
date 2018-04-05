@@ -110,11 +110,6 @@ namespace PapaPoncho
 
         public static void Cylinder(ref List<Vector3> points, ref List<int> triangles, Vector3 p1, Vector3 p2, float r1, float r2, int sub = 3, bool bottom = false, bool top = false)
         {
-            Mesh mesh = new Mesh()
-            {
-                name = "Cylinder mesh",
-            };
-
             float theta1;
             float theta2;
 

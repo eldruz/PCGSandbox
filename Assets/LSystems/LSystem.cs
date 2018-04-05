@@ -103,7 +103,7 @@ namespace LSystems
             angle = config.angle;
 
             deterministicProductions = config.deterministicProductions;
-            foreach (Production rule in deterministicProductions)
+            foreach (DeterministicProduction rule in deterministicProductions)
             {
                 productionsDic.Add(rule.predecessor, rule.successor);
             }
@@ -119,7 +119,7 @@ namespace LSystems
             }
         }
 
-        public void Generate()
+        private void Generate()
         {
             generation++;
             axiom = Derivation(axiom);

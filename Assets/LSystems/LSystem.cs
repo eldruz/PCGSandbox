@@ -187,6 +187,7 @@ namespace LSystems
                     // apply stochastic rules
                     // TODO: apply provided probabilities
                     sb.Append(appliedRules[Random.Range(0, appliedRules.Count)].successor);
+                    float randomSelect = Random.Range(0f, 1f);
                 }
                 else if (productionsDic.ContainsKey(c.ToString()))
                 {

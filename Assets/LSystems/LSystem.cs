@@ -37,17 +37,9 @@ namespace LSystems
         private GameObject turtleObj;
         private Turtle turtle;
 
-        //private List<Edge> edges = new List<Edge>();
-        //public List<Edge> Edges { get { return edges; } set { } }
-
         private List<State> run = new List<State>();
         public List<State> Run { get { return run; } set { } }
 
-        //private Arbol<State> tree;
-        //public Arbol<State> Arbol { get { return tree; } set { } }
-        //private Arbol<State> currentTree;
-
-        //private Stack<Arbol<State>> storedTree = new Stack<Arbol<State>>();
         private Stack<State> storedStates = new Stack<State>();
         private State currentState;
 
@@ -81,11 +73,8 @@ namespace LSystems
                 isDrawn = false
             };
 
-            //edges.Clear();
             run.Clear();
             run.Add(currentState.Clone());
-            //tree = new Arbol(null, currentState.Clone());
-            //currentTree = tree;
         }
 
         private void LoadConfig()
@@ -129,18 +118,9 @@ namespace LSystems
                 switch (c)
                 {
                     case 'F':
-                        //Vector3 from = turtle.transform.position;
                         currentState.isDrawn = true;
-                        // Moves forward and updates the state
                         Translate(direction * distance * ((generation > 1) ? dL : 1f));
-                        //// Create a new tree with the updated state
-                        //Arbol branch = new Arbol(currentTree, currentState.Clone());
-                        //// Add the tree as a child of the currentTree
-                        //currentTree.AddChild(branch);
-                        //// Set the currentTree to the newly created tree
-                        //currentTree = branch;
                         run.Add(currentState.Clone());
-                        //edges.Add(new Edge { from = from, to = turtle.transform.position });
                         break;
                     case 'f':
                         currentState.isDrawn = false;
@@ -169,12 +149,10 @@ namespace LSystems
                         break;
                     case '[':
                         storedStates.Push(currentState.Clone());
-                        //storedTree.Push(currentTree);
                         break;
                     case ']':
                         currentState = storedStates.Pop();
                         turtle.SetStateToTurtle(currentState);
-                        //currentTree = storedTree.Pop();
                         break;
                     default:
                         break;
